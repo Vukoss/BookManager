@@ -1,0 +1,83 @@
+﻿@page "/authorbookpage/{bookId:int}"
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext db
+
+<div class="row">
+    <div class="col-6">
+        <EditForm Model="bookAuthorVM" OnValidSubmit="addAuthor">
+            <div class="form-group">
+                <label>Book Name</label>
+                <div>@bookAuthorVM.Book.BookName</div>
+            </div>
+            <div class="form-group">
+                <InputSelect @bind-Value="bookAuthorVM.BookAuthor.Author_Id">
+                    @foreach (var item in bookAuthorVM.AuthorList)
+                    {
+                        <option value="@item.Author_Id">@item.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit">Add Author</button>
+        </EditForm>
+    </div>
+    <div class="col-6">
+        <p>Authors assigned to this book are:</p>
+        @foreach (var item in bookAuthorVM.BookAuthorList)
+        {
+            int id = item.Author_Id;
+            <p>@item.Author.Name</p>
+            <button @onclick="() => deleteAuthor(id)">Usun autora</button>
+        }
+    </div>
+</div>
+
+
+
+@code {
+
+    [Parameter]
+    public int bookId { get; set; }
+
+    private BookAuthorVM bookAuthorVM = new();
+
+    private List<int> tempListOfAssignedAuthors = new();
+
+    private List<Author> tempList = new();
+
+    protected override void OnInitialized()
+    {
+        bookAuthorVM.BookAuthorList = db.BookAuthorMaps.AsNoTracking().Include(a => a.Author).Include(a => a.Book).Where(a => a.Book_Id == bookId).ToList();
+
+        bookAuthorVM.BookAuthor = new BookAuthorMap();
+
+        bookAuthorVM.Book = db.Books.FirstOrDefault(u => u.Book_Id == bookId);
+
+        tempListOfAssignedAuthors = bookAuthorVM.BookAuthorList.Select(b => b.Author_Id).ToList();
+
+        tempList = db.Authors.Where(u => !tempListOfAssignedAuthors.Contains(u.Author_Id)).ToList();
+
+        bookAuthorVM.AuthorList = tempList;
+    }
+
+    private void addAuthor()
+    {
+        bookAuthorVM.BookAuthor = new BookAuthorMap
+        {
+            Book_Id = bookId,
+            Author_Id = bookAuthorVM.BookAuthor.Author_Id
+        };
+
+        db.BookAuthorMaps.Add(bookAuthorVM.BookAuthor);
+        db.SaveChanges();
+        OnInitialized();
+    }
+
+    private void deleteAuthor(int id)
+    {
+        BookAuthorMap bookauthor = db.BookAuthorMaps.Where(b => b.Book_Id == bookId && b.Author_Id == id).FirstOrDefault();
+        db.BookAuthorMaps.Remove(bookauthor);
+        db.SaveChanges();
+        OnInitialized();
+    }
+}
+

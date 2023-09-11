@@ -1,0 +1,38 @@
+﻿@page "/bookpage"
+@inject AppDbContext db
+@inject NavigationManager navi
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Book Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in books)
+        {
+            int id = item.Book_Id;
+            <tr class="mb-3">
+                <td>@item.Book_Id</td>
+                <td>@item.BookName</td>
+                <button class="btn btn-secondary" @onclick="() => handleBtn(id)">Authors</button>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Book> books = new();
+
+    protected override void OnInitialized()
+    {
+        books = db.Books.ToList();
+    }
+
+    private void handleBtn(int id)
+    {
+        navi.NavigateTo($"authorbookpage/{id}");
+    }
+}
+
