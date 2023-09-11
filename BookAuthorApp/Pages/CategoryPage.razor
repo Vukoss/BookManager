@@ -3,7 +3,7 @@
 @inject NavigationManager navi
 
 <div class="container">
-    @if (categories == null)
+    @if (categories.Count() == 0)
     {
         <p>Nothing here...</p>
     }
