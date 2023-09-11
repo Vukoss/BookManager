@@ -1,0 +1,61 @@
+﻿@page "/category"
+@inject AppDbContext db
+@inject NavigationManager navi
+
+<div class="container">
+    @if (categories == null)
+    {
+        <p>Nothing here...</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Category Name</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var i in categories)
+                {
+                    int nb = i.CategoryId;
+                    <tr>
+                        <td>@i.CategoryName</td>
+                        <td>
+                            <button @onclick="() => handleEdit(nb)" class="btn btn-primary">Edit</button>
+                            <button @onclick="() => handleDelete(nb)" class="btn btn-primary">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<Category> categories = new();
+
+    protected override void OnInitialized()
+    {
+        categories = db.Categories.ToList();
+    }
+
+    private void handleDelete(int id)
+    {
+        var category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
+
+        if (category != null)
+        {
+            db.Categories.Remove(category);
+            db.SaveChanges();
+        }
+        categories = db.Categories.ToList();
+    }
+
+    private void handleEdit(int id)
+    {
+
+    }
+}
+
