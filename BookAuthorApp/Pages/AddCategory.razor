@@ -1,0 +1,39 @@
+﻿@page "/addcategory"
+@inject AppDbContext db
+@inject NavigationManager navi
+
+<EditForm Model="category" OnValidSubmit="handleSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="form-group">
+        <label>Category Name</label>
+        <InputText @bind-Value="category.CategoryName">
+        </InputText>
+    </div>
+    <button class="btn btn-primary" type="submit">Add</button>
+    <div class="btn btn-secondary" @onclick="handleBackButton">Back</div>
+</EditForm>
+@code {
+
+    private Category category = new();
+
+    private async Task handleSubmit()
+    {
+        if (category != null)
+        {
+            await db.Categories.AddAsync(category);
+            await db.SaveChangesAsync();
+            navi.NavigateTo("/category");
+        }
+        else
+        {
+            
+        }
+    }
+
+    private void handleBackButton()
+    {
+        navi.NavigateTo("/category");
+    }
+}
+

@@ -3,47 +3,41 @@
 @inject NavigationManager navi
 
 <div class="container">
-    @if (categories.Count() == 0)
-    {
-        <p>Nothing here...</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
+    <button class="btn btn-primary" @onclick="handleAdd">Add new category</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category Name</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in categories)
+            {
+                int nb = i.CategoryId;
                 <tr>
-                    <th>Category Name</th>
-                    <th>Options</th>
+                    <td>@i.CategoryName</td>
+                    <td>
+                        <button @onclick="() => handleEdit(nb)" class="btn btn-primary">Edit</button>
+                        <button @onclick="() => handleDelete(nb)" class="btn btn-primary">Delete</button>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var i in categories)
-                {
-                    int nb = i.CategoryId;
-                    <tr>
-                        <td>@i.CategoryName</td>
-                        <td>
-                            <button @onclick="() => handleEdit(nb)" class="btn btn-primary">Edit</button>
-                            <button @onclick="() => handleDelete(nb)" class="btn btn-primary">Delete</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+            }
+        </tbody>
+    </table>
 </div>
 
 @code {
     private List<Category> categories = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        categories = db.Categories.ToList();
+        categories = await db.Categories.ToListAsync();
     }
 
-    private void handleDelete(int id)
+    private async Task handleDelete(int id)
     {
-        var category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
+        var category = await db.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
 
         if (category != null)
         {
@@ -56,6 +50,11 @@
     private void handleEdit(int id)
     {
 
+    }
+
+    private void handleAdd()
+    {
+        navi.NavigateTo("/addcategory");
     }
 }
 

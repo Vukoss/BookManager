@@ -20,6 +20,10 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/patryk/Projects/BookAuthorApp/BookAuthorApp/Pages/AddCategory.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWRkQ2F0ZWdvcnkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/patryk/Projects/BookAuthorApp/BookAuthorApp/Pages/AuthorBookPage.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQXV0aG9yQm9va1BhZ2UucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
