@@ -1,33 +1,58 @@
 ﻿@page "/addcategory"
+@page "/addcategory/{id:int}"
 @inject AppDbContext db
 @inject NavigationManager navi
 
 <EditForm Model="category" OnValidSubmit="handleSubmit">
-    <DataAnnotationsValidator></DataAnnotationsValidator>
-    <ValidationSummary></ValidationSummary>
-    <div class="form-group">
-        <label>Category Name</label>
-        <InputText @bind-Value="category.CategoryName">
-        </InputText>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="d-flex justify-content-start align-items-center">
+        <div class="form-group">
+            <label>Category Name</label>
+            <InputText @bind-Value="category.CategoryName">
+            </InputText>
+        </div>
+        <div class="form-group ms-3">
+            @if (id != null)
+            {
+                <button class="btn btn-primary" type="submit">Update</button>
+            }
+            else
+            {
+                <button class="btn btn-primary" type="submit">Add</button>
+            }
+            <div class="btn btn-secondary ms-1" @onclick="handleBackButton">Back</div>
+        </div>
     </div>
-    <button class="btn btn-primary" type="submit">Add</button>
-    <div class="btn btn-secondary" @onclick="handleBackButton">Back</div>
 </EditForm>
+
 @code {
+    [Parameter]
+    public int? id { get; set; }
 
     private Category category = new();
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id != null)
+        {
+            category = await db.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+        }
+    }
+
     private async Task handleSubmit()
     {
-        if (category != null)
+        if (id != null)
         {
-            await db.Categories.AddAsync(category);
-            await db.SaveChangesAsync();
+            db.Categories.Update(category);
+            db.SaveChanges();
             navi.NavigateTo("/category");
         }
         else
         {
-            
+            await db.Categories.AddAsync(category);
+            await db.SaveChangesAsync();
+            navi.NavigateTo("/category");
         }
     }
 

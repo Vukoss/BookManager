@@ -9,6 +9,7 @@ namespace BookAuthorApp.Data
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<BookAuthorMap> BookAuthorMaps { get; set; }
+        public DbSet<BookCategoryMap> BookCategoryMaps { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<BookDetail> BookDetails { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
@@ -35,11 +36,10 @@ namespace BookAuthorApp.Data
             modelBuilder.Entity<Author>().Ignore(a => a.FullName);
 
             modelBuilder.Entity<Book>().HasKey(u => u.Book_Id);
-            modelBuilder.Entity<Book>().Property(u => u.BookName).IsRequired();
+            modelBuilder.Entity<Book>().Property(u => u.Title).IsRequired();
             modelBuilder.Entity<Book>().Property(u => u.ISBN).IsRequired().HasMaxLength(20);
             modelBuilder.Entity<Book>().Ignore(b => b.PriceRange);
             modelBuilder.Entity<Book>().HasOne(b => b.Publisher).WithMany(b => b.Books).HasForeignKey(b => b.Publisher_Id);
-            modelBuilder.Entity<Book>().HasOne(b => b.Category).WithMany(b => b.Books).HasForeignKey(b => b.Category_Id);
 
             modelBuilder.Entity<BookDetail>().HasKey(d => d.BookDetail_Id);
             modelBuilder.Entity<BookDetail>().Property(d => d.NumberOfChapters).IsRequired();
@@ -62,6 +62,18 @@ namespace BookAuthorApp.Data
                 .HasOne(a => a.Author)
                 .WithMany(a => a.BookAuthorMap)
                 .HasForeignKey(a => a.Author_Id);
+
+            modelBuilder.Entity<BookCategoryMap>().HasKey(b => new { b.Book_Id, b.Category_Id });
+
+            modelBuilder.Entity<BookCategoryMap>()
+                .HasOne(b => b.Book)
+                .WithMany(b => b.BookCategoryMaps)
+                .HasForeignKey(b => b.Book_Id);
+            modelBuilder.Entity<BookCategoryMap>()
+                .HasOne(b => b.Category)
+                .WithMany(b => b.BookCategoryMaps)
+                .HasForeignKey(b => b.Category_Id);
+
         }
     }
 }

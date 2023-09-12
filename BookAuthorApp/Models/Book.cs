@@ -7,11 +7,9 @@ namespace BookAuthorApp.Models
 	public class Book
 	{
 		public int Book_Id { get; set; }
-
-		public string BookName { get; set; }
-
+        [Required]
         public string Title { get; set; }
-
+        [Required]
         public string ISBN { get; set; }
 
         public decimal Price { get; set; }
@@ -20,8 +18,7 @@ namespace BookAuthorApp.Models
 
         public BookDetail BookDetail { get; set; }
 
-        public int Category_Id { get; set; }
-        public Category Category { get; set; }
+        public List<BookCategoryMap> BookCategoryMaps { get; set; }
 
         public int Publisher_Id { get; set; }
         public Publisher Publisher { get; set; }

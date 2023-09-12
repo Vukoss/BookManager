@@ -8,9 +8,10 @@ namespace BookAuthorApp.Models
 	{
         public int CategoryId { get; set; }
 
+        [Required(ErrorMessage = "Category name is required!")]
         public string CategoryName { get; set; }
 
-        public List<Book> Books { get; set; }
+        public List<BookCategoryMap> BookCategoryMaps { get; set; }
     }
 }
 

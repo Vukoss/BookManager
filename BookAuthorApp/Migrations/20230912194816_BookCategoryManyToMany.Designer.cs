@@ -3,6 +3,7 @@ using System;
 using BookAuthorApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookAuthorApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230912194816_BookCategoryManyToMany")]
+    partial class BookCategoryManyToMany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,21 +100,6 @@ namespace BookAuthorApp.Migrations
                     b.ToTable("BookAuthorMaps");
                 });
 
-            modelBuilder.Entity("BookAuthorApp.Models.BookCategoryMap", b =>
-                {
-                    b.Property<int>("Book_Id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Category_Id")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Book_Id", "Category_Id");
-
-                    b.HasIndex("Category_Id");
-
-                    b.ToTable("BookCategoryMaps");
-                });
-
             modelBuilder.Entity("BookAuthorApp.Models.BookDetail", b =>
                 {
                     b.Property<int>("BookDetail_Id")
@@ -181,6 +169,21 @@ namespace BookAuthorApp.Migrations
                     b.ToTable("Publishers");
                 });
 
+            modelBuilder.Entity("BookCategory", b =>
+                {
+                    b.Property<int>("BooksBook_Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoriesCategoryId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("BooksBook_Id", "CategoriesCategoryId");
+
+                    b.HasIndex("CategoriesCategoryId");
+
+                    b.ToTable("BookCategory");
+                });
+
             modelBuilder.Entity("BookAuthorApp.Models.Book", b =>
                 {
                     b.HasOne("BookAuthorApp.Models.Publisher", "Publisher")
@@ -211,25 +214,6 @@ namespace BookAuthorApp.Migrations
                     b.Navigation("Book");
                 });
 
-            modelBuilder.Entity("BookAuthorApp.Models.BookCategoryMap", b =>
-                {
-                    b.HasOne("BookAuthorApp.Models.Book", "Book")
-                        .WithMany("BookCategoryMaps")
-                        .HasForeignKey("Book_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookAuthorApp.Models.Category", "Category")
-                        .WithMany("BookCategoryMaps")
-                        .HasForeignKey("Category_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("BookAuthorApp.Models.BookDetail", b =>
                 {
                     b.HasOne("BookAuthorApp.Models.Book", "Book")
@@ -241,6 +225,21 @@ namespace BookAuthorApp.Migrations
                     b.Navigation("Book");
                 });
 
+            modelBuilder.Entity("BookCategory", b =>
+                {
+                    b.HasOne("BookAuthorApp.Models.Book", null)
+                        .WithMany()
+                        .HasForeignKey("BooksBook_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookAuthorApp.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("BookAuthorApp.Models.Author", b =>
                 {
                     b.Navigation("BookAuthorMap");
@@ -250,15 +249,8 @@ namespace BookAuthorApp.Migrations
                 {
                     b.Navigation("BookAuthorMap");
 
-                    b.Navigation("BookCategoryMaps");
-
                     b.Navigation("BookDetail")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BookAuthorApp.Models.Category", b =>
-                {
-                    b.Navigation("BookCategoryMaps");
                 });
 
             modelBuilder.Entity("BookAuthorApp.Models.Publisher", b =>

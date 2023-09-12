@@ -7,6 +7,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Category Name</th>
                 <th>Options</th>
             </tr>
@@ -16,10 +17,11 @@
             {
                 int nb = i.CategoryId;
                 <tr>
+                    <td>@i.CategoryId</td>
                     <td>@i.CategoryName</td>
                     <td>
                         <button @onclick="() => handleEdit(nb)" class="btn btn-primary">Edit</button>
-                        <button @onclick="() => handleDelete(nb)" class="btn btn-primary">Delete</button>
+                        <button @onclick="() => handleDelete(nb)" class="btn btn-danger">Delete</button>
                     </td>
                 </tr>
             }
@@ -32,7 +34,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await db.Categories.ToListAsync();
+        categories = await db.Categories.OrderBy(c => c.CategoryId).ToListAsync();
     }
 
     private async Task handleDelete(int id)
@@ -49,7 +51,7 @@
 
     private void handleEdit(int id)
     {
-
+        navi.NavigateTo($"/addcategory/{id}");
     }
 
     private void handleAdd()
