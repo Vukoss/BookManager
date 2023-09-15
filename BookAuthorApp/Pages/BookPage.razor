@@ -1,38 +1,107 @@
-﻿@page "/bookpage"
+﻿@page "/"
+@page "/bookpage"
 @inject AppDbContext db
 @inject NavigationManager navi
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Book Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in books)
-        {
-            int id = item.Book_Id;
-            <tr class="mb-3">
-                <td>@item.Book_Id</td>
-                <td>@item.Title</td>
-                <button class="btn btn-secondary" @onclick="() => handleBtn(id)">Authors</button>
+<div class="mb-5">
+    <button class="btn btn-success" @onclick="handleUpsertBook">Add new book</button>
+</div>
+
+@if (books.Count() != 0)
+{
+    <table class="table col-6">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Publisher</th>
+                <th>Authors</th>
+                <th>Categories</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in books)
+            {
+                int id = item.Book_Id;
+                <tr class="mb-3">
+                    <td>@item.Title</td>
+                    <td>@item.Price</td>
+                    <td>@item.Publisher.Name</td>
+                    <td>
+                        @{
+                            var authors = "";
+                            @foreach (var a in item.BookAuthorMap)
+                            {
+                                authors += a.Author.Name + ", ";
+                            }
+                            <p>@authors</p>
+                        }
+                    </td>
+                    <td>
+                        @{
+
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => handleAuthors(id)">Authors</button>
+                        <button class="btn btn-info" @onclick="() => handleDetails(id)">Details</button>
+                        <button class="btn btn-danger" @onclick="() => handleDelete(id)">Delete</button>
+                        <button class="btn btn-warning" @onclick="() => handleUpsertBook(id)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="text-center">
+        <h3>There are no books here!</h3>
+    </div>
+}
+
 
 @code {
     private List<Book> books = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        books = db.Books.ToList();
+        books = await db.Books.OrderBy(b => b.Book_Id).Include(b => b.Publisher).Include(b => b.BookAuthorMap).ThenInclude(b => b.Author).Include(b => b.BookCategoryMaps).ThenInclude(b => b.Category).ToListAsync();
     }
 
-    private void handleBtn(int id)
+    private void handleAuthors(int id)
     {
         navi.NavigateTo($"authorbookpage/{id}");
     }
+
+    private void handleDetails(int id)
+    {
+        navi.NavigateTo($"/bookdetails/{id}");
+    }
+
+    private async Task handleDelete(int id)
+    {
+        var book = await db.Books.FirstOrDefaultAsync(b => b.Book_Id == id);
+        db.Books.Remove(book);
+        await db.SaveChangesAsync();
+        books = await db.Books.OrderBy(b => b.Book_Id).Include(b => b.Publisher).ToListAsync();
+    }
+
+    private void handleUpsertBook()
+    {
+        navi.NavigateTo("/addbook");
+    }
+
+    private void handleUpsertBook(int id)
+    {
+        navi.NavigateTo($"/editbook/{id}");
+    }
+
+    //private async Task<List<BookAuthorMap>> getAuthors(int id)
+    //{
+    //    var authors = await db.BookAuthorMaps.Include(b => b.Author).Where(b => b.Book_Id == id).ToListAsync();
+    //    return authors;
+    //}
 }
 

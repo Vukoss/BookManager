@@ -46,7 +46,7 @@
             db.Categories.Remove(category);
             db.SaveChanges();
         }
-        categories = db.Categories.ToList();
+        categories = await db.Categories.ToListAsync();
     }
 
     private void handleEdit(int id)

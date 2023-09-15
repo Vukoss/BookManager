@@ -1,0 +1,92 @@
+﻿@page "/addbook"
+@page "/editbook/{Id:int}"
+@inject AppDbContext db
+@inject NavigationManager navi
+
+<EditForm class="col-6" Model="book" OnValidSubmit="handleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group mb-3">
+        <label>
+            Book Title
+        </label>
+        <InputText class="form-control" @bind-Value="book.Title">
+        </InputText>
+    </div>
+    <div class="form-group mb-3">
+        <label>
+            ISBN
+        </label>
+        <InputText class="form-control" @bind-Value="book.ISBN">
+        </InputText>
+    </div>
+    <div class="form-group mb-3">
+        <label>
+            Price
+        </label>
+        <InputNumber class="form-control" @bind-Value="book.Price">
+        </InputNumber>
+    </div>
+    <div class="form-group mb-3">
+        <label>
+            Publisher
+        </label>
+        <InputSelect class="form-control" @bind-Value="book.Publisher_Id">
+            <option selected value=""></option>
+            @foreach (var item in publishers)
+            {
+                <option value="@item.Publisher_Id">@item.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        @if (Id != null)
+        {
+            <button class="btn btn-primary" type="submit">Update</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" type="submit">Add</button>
+        }
+        <div class="btn btn-secondary ms-1" @onclick="handleBackButton">Back</div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Book book = new();
+
+    private List<Publisher> publishers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != null)
+        {
+            book = await db.Books.FirstOrDefaultAsync(b => b.Book_Id == Id);
+        }
+
+        publishers = await db.Publishers.ToListAsync();
+    }
+
+    private async Task handleSubmit()
+    {
+        if (Id != null)
+        {
+            db.Books.Update(book);
+            await db.SaveChangesAsync();
+        }
+        else
+        {
+            await db.Books.AddAsync(book);
+            await db.SaveChangesAsync();
+        }
+        navi.NavigateTo("/bookpage");
+    }
+
+    private void handleBackButton()
+    {
+        navi.NavigateTo("/bookpage");
+    }
+}

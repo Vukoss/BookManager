@@ -1,0 +1,83 @@
+﻿@page "/bookdetails/{Id:int}"
+@inject AppDbContext db
+@inject NavigationManager navi
+
+<EditForm Model="bookDetails" OnValidSubmit="handleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group mb-3">
+        <label>
+            Number of Chapters
+        </label>
+        <InputNumber class="form-control" @bind-Value="bookDetails.NumberOfChapters">
+        </InputNumber>
+    </div>
+    <div class="form-group mb-3">
+        <label>
+            Number of Pages
+        </label>
+        <InputNumber class="form-control" @bind-Value="bookDetails.NumberOfPages">
+        </InputNumber>
+    </div>
+    <div class="form-group mb-3">
+        <label>
+            Weight
+        </label>
+        <InputText class="form-control" @bind-Value="bookDetails.Weight">
+        </InputText>
+    </div>
+    <div class="form-group">
+        @if (bookDetails.Book_Id != 0)
+        {
+            <button class="btn btn-primary" type="submit">Update</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" type="submit">Add</button>
+        }
+        <div class="btn btn-secondary ms-1" @onclick="handleBackButton">Back</div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private BookDetail? bookDetails = new();
+
+    private Book book = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        book = await db.Books.Include(b => b.BookDetail).Where(b => b.Book_Id == Id).FirstOrDefaultAsync();
+
+        if (book.BookDetail != null)
+        {
+            bookDetails = await db.BookDetails.Where(b => b.Book_Id == Id).FirstOrDefaultAsync();
+        }
+    }
+
+    private async Task handleSubmit()
+    {
+        if (book.BookDetail != null)
+        {
+            db.BookDetails.Update(bookDetails);
+            await db.SaveChangesAsync();
+            navi.NavigateTo("/");
+        }
+        else
+        {
+            bookDetails.Book_Id = Id;
+            db.BookDetails.Add(bookDetails);
+            await db.SaveChangesAsync();
+            navi.NavigateTo("/");
+        }
+
+    }
+
+    private void handleBackButton()
+    {
+        navi.NavigateTo("/");
+    }
+}
+
